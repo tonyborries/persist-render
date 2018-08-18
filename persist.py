@@ -15,7 +15,7 @@ logger = logging.getLogger('persist.log')
 
 app = Celery(
     'persist',
-    broker='redis://guest@192.168.1.112//',
+    broker='redis://guest@redis//',
     backend='rpc://',
 )
 
@@ -32,7 +32,7 @@ MAX_FRAMES_PER_RUN = 200  # need about 3 GB per 100 1080x1920 images
 ###
 # File Locations
 
-BASE_DIR="/home/tonyb/persist-render/media/"
+BASE_DIR="/opt/persist/media/"
 
 
 def get_src_frame_dir(project_name, persisted_frames):
