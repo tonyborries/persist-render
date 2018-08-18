@@ -6,6 +6,8 @@ from tabulate import tabulate
 import persist 
 
 
+BASE_DIR="/opt/persist/media/"
+
 ###
 # Main Process - not an async task itself
 
@@ -17,9 +19,14 @@ def process_video(rel_source_filename, persist_frames, skip_level=False, infinit
     print "============\nProcessing %s - Persist %d frames\n" % (rel_source_filename, persist_frames)
 
     project_name = ''.join(x for x in rel_source_filename if x.isalnum())
-    output_name = project_name + "-persisted-%d.mp4" % persist_frames
+    output_name = "{}-persisted-{}{}{}.mp4".format(
+        project_name,
+        persist_frames,
+        'sl' if skip_level else '',
+        'i' if infinite_persist else ''
+        )
 
-    if os.path.isfile(output_name):
+    if os.path.isfile(os.path.join(BASE_DIR, output_name)):
         print "File Exists - skipping: %s" % output_name
         return
 
