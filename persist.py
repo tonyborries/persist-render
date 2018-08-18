@@ -121,7 +121,7 @@ def generate_persisted_frame(project_name, persisted_frames, generate_frame_num,
         last_persisted_frame_name = None
         for frame_num in xrange(min_frame_num, max_frame_num + 1):
             if frame_num % 100 == 0:
-                logger.info("Infinite Persist: %d", frame_num)
+                logger.info("Infinite Persist: %d of %d", frame_num, max_frame_num)
             persisted_frame_name = get_persisted_frame_name(project_name, persisted_frames, frame_num)
             src_frame_file_name = get_src_frame_name(project_name, persisted_frames, frame_num)
 

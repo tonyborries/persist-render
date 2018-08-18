@@ -1,13 +1,16 @@
-import persist 
 from celery import group
+import csv
 import os.path
+from tabulate import tabulate
+
+import persist 
+
 
 ###
 # Main Process - not an async task itself
 
 def process_video(rel_source_filename, persist_frames, skip_level=False, infinite_persist=False):
     """
-    
     rel_source_filename is relative to BASE_DIR
     """
 
@@ -100,6 +103,54 @@ def speedup_video(rel_source_filename, x_times):
 #f = speedup_video(f, 60)
 #process_video(f, persist_frames=1, skip_level=True, infinite_persist=False)
 
-f = "DSC0516MOVspeed-speed-30x.mp4"
-process_video(f, persist_frames=1, skip_level=True, infinite_persist=True)
+#f = "DSC_0502.MOV"
+#process_video(f, persist_frames=1, skip_level=True, infinite_persist=True)
+
+
+CSV_FILENAME = 'media/config.csv'
+
+if __name__ == "__main__":
+
+    def _decomment(csvfile):
+        for row in csvfile:
+            raw = row.split('#')[0].strip()
+            if raw: yield raw
+
+    tasks = []
+    with open(CSV_FILENAME, 'rb') as csvfile:
+        reader = csv.reader(_decomment(csvfile), skipinitialspace=True)
+        for row in reader:
+            tasks.append(row)
+
+    completed_tasks = []
+    for task in tasks:
+        infile, speedup, persist_frames, skip_level, infinite_persist = task
+        speedup = int(speedup)
+        persist_frames = int(persist_frames)
+        skip_level = bool(skip_level)
+        infinite_persist = bool(infinite_persist)
+
+        f = infile
+        if speedup != 1:
+            print "Speedup {} {}x".format(f, speedup)
+            f = speedup_video(f, speedup)
+
+        if persist_frames > 0:
+            print "Process {} {} {} {}".format(infile, persist_frames, skip_level, infinite_persist)
+            process_video(
+                infile,
+                persist_frames=persist_frames,
+                skip_level=skip_level,
+                infinite_persist=infinite_persist
+            )
+        completed_tasks.append((
+            infile,
+            speedup,
+            persist_frames,
+            skip_level,
+            infinite_persist
+        ))
+
+    print tabulate(completed_tasks, headers=['File', 'Speedup', 'Persist Frames', 'Skip Level', 'Infinite'])
+
 
