@@ -318,12 +318,18 @@ class Persist(object):
         if not os.path.isfile(infilename):
             raise Exception("Filename %s does not exist" % repr(infilename))
 
+        duration = None
+        if end_timestamp:
+            duration = end_timestamp
+            if start_timestamp:
+                duration -= start_timestamp
+
         args = ["ffmpeg"]
         if start_timestamp:
             args.extend(['-ss', str(start_timestamp)])
         args.extend(['-i', infilename])
-        if end_timestamp:
-            args.extend(['-t', str(end_timestamp)])
+        if duration:
+            args.extend(['-t', str(duration)])
         args.extend(['-strict', 'experimental', '-vcodec', 'libx264'])
         args.append(BASE_DIR + self.output_filename)
         if call(args):
