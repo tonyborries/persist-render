@@ -102,7 +102,7 @@ class Persist(object):
         return self.get_persisted_frame_format() % frame_num
 
     def get_temp_frame_name(self, frame_num, for_frame_num):
-        temp_frame_dir = "/tmp/ersist-temp/{}-{}{}{}{}/".format(
+        temp_frame_dir = "/tmp/persist-temp/{}-{}{}{}{}/".format(
             self.input_filename,
             self.persisted_frames,
             'sl' if self.skip_level else '',
