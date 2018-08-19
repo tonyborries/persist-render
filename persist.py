@@ -309,6 +309,29 @@ class Persist(object):
         return "Created - Speed Frame"
 
 
+    def cut_clip(self, start_timestamp, end_timestamp):
+        '''
+        cut a clip out of a video, timestamps are float seconds
+        '''
+
+        infilename = BASE_DIR + self.input_filename
+        if not os.path.isfile(infilename):
+            raise Exception("Filename %s does not exist" % repr(infilename))
+
+        args = ["ffmpeg"]
+        if start_timestamp:
+            args.extend(['-ss', str(start_timestamp)])
+        args.extend(['-i', infilename])
+        if end_timestamp:
+            args.extend(['-t', str(end_timestamp)])
+        args.extend(['-strict', 'experimental', '-vcodec', 'libx264'])
+        args.append(BASE_DIR + self.output_filename)
+        if call(args):
+            raise Exception("Failed running ffmpeg split")
+
+        return "Created - Split Clip"
+
+
 
 ###
 # Celery Tasks
@@ -331,4 +354,9 @@ def assemble_frames_into_video(rel_source_filename, persisted_frames, skip_level
 @app.task
 def merge_frames(out_frame_num, start_frame_num, end_frame_num, persistDict):
     p = Persist(**persistDict)
-    p.merge_frames(out_frame_num, start_frame_num, end_frame_num)
+    return p.merge_frames(out_frame_num, start_frame_num, end_frame_num)
+
+@app.task
+def cut_clip(persistDict, start_timestamp=0, end_timestamp=0):
+    p = Persist(**persistDict)
+    return p.cut_clip(start_timestamp, end_timestamp)
